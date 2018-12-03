@@ -1,6 +1,5 @@
 var model = require('./model.js')
 const bcrypt = require('bcrypt');
-var mapper = require('./usermapper');
 var util = require('./util.js')
 var cloudinary = require('cloudinary')
 cloudinary.config({
@@ -20,7 +19,7 @@ async function signup(req, res) {
             if (err.code === 11000) {
                 return res.json({ code: 400, message: "emailId must be unique" })
             }
-            return res.json(mapper.errmsg())
+            return res.json({ code: 500, message: "Internal Server Error" })
         } else {
             return res.json({ code: 200, message: "ok", data })
         }
@@ -41,7 +40,7 @@ function login(req, res) {
         })
     }).catch((err) => {
         console.log(err)
-        return res.json(mapper.errmsg())
+        return res.json({ code: 500, message: "Internal Server Error" })
     })
 }
 
@@ -51,7 +50,7 @@ function update(req, res) {
         console.log(data._id)
         console.log(req.params.id)
         if (err) {
-            return res.json(mapper.errmsg())
+            return res.json({ code: 500, message: "Internal Server Error" })
         } else if (!data) {
             return res.json({ code: 404, message: "data not found" })
         } else if (data._id == req.params.id) {
@@ -84,10 +83,6 @@ function update(req, res) {
             req.body.editedBy = req.params.updateid
             model.findOneAndUpdate({ $and: [{ _id: req.params.id }, condition] }, { $set: req.body }, { new: true }, (err, data1) => {
                 if (err) {
-                    console.log(err)
-                    if (err.code === 11000) {
-                        return res.json({ code: 400, message: "emailId must be unique" })
-                    }
                     return res.json({ code: 500, message: "Internal Server Error" })
                 } else if (!data1) {
                     return res.json({ code: 404, message: "Not Access For Update" })
@@ -102,7 +97,7 @@ function update(req, res) {
 function deleteUser(req, res) {
     model.findOne({ _id: req.params.deleteid, status: 'Active' }, (err, data) => {
         if (err) {
-            return res.json(err.errmsg())
+            return res.json({ code: 500, message: "Internal Server Error" })
         } else if (!data) {
             return res.json({ code: 404, message: "data not found" })
         } else if (data._id == req.params.id) {
@@ -133,7 +128,7 @@ function deleteUser(req, res) {
             }
             model.findOneAndUpdate({ $and: [{ _id: req.params.id }, condition] }, { $set: { status: 'InActive' } }, { new: true }, (err, data1) => {
                 if (err) {
-                    return res.json(mapper.errmsg())
+                    return res.json({ code: 500, message: "Internal Server Error" })
                 } else if (!data1) {
                     return res.json({ code: 404, message: "Not Access For delete" })
                 } else {
@@ -149,7 +144,7 @@ function view(req, res) {
     model.findOne({ _id: req.params.id, status: 'Active' }, (err, data) => {
         if (err) {
             console.log(err)
-            return res.json(mapper.errmsg())
+            return res.json({ code: 500, message: "Internal Server Error" })
         } else if (!data) {
             return res.json({ code: 404, message: "data not found" })
         } else {
@@ -192,7 +187,7 @@ async function imageupload1(req, res) {
     req.newFile_name = [];
     await util.upload(req, res, async function (err) {
         if (err) {
-            return res.json({ code: code.badRequest, message: msg.internalServerError })
+            return res.json({ code: 500, message: "Internal Server Error" })
         }
         else {
             // var filePath = req.newFile_name;
@@ -216,9 +211,10 @@ async function imageupload1(req, res) {
                         if (upload_res.length === upload_len) {
                             resolve(upload_res)
                         } else if (result) {
-                           upload_res.push(result.url);
+                            upload_res.push(result.url);
                         } else if (error) {
                             reject(error)
+                            return res.json({ code: 500, message: "Internal Server Error" })
                         }
                     })
                 }

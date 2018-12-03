@@ -11,5 +11,4 @@ var schema = new mongoose.Schema({
     editedBy: { type: mongoose.Schema.Types.ObjectId, ref: "KQ" }
 })
 
-var user = module.exports = mongoose.model('KQ', schema)
-user.createIndexes();
+module.exports = mongoose.model('KQ', schema)

@@ -24,8 +24,8 @@ app.post('/update/:id/:updateid', (req, res) => {
 app.post('/deleteUser/:id/:deleteid', (req, res) => {
     useraction.deleteUser(req, res)
 })
-app.post('/imageupload1',(req,res)=>{
-    useraction.imageupload1(req,res)
+app.post('/imageupload1', (req, res) => {
+    useraction.imageupload1(req, res)
 })
 app.listen(config.port, () => {
     console.log(`app listening on  ${config.port}`)
